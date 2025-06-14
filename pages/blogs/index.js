@@ -1,29 +1,28 @@
-import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { fetchBlogsFromGoogleDocs } from '../../lib/googleDocs';
 import BlogPost from '../../components/BlogPost';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import axios from 'axios';
 
-export default function Blogs() {
-  const [blogs, setBlogs] = useState([]);
+export async function getServerSideProps() {
+  try {
+    const blogsSnap = await getDocs(collection(db, 'blogs'));
+    const blogsData = await Promise.all(
+      blogsSnap.docs.map(async doc => {
+        const data = doc.data();
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/blogs/${data.googleDocId}`);
+        return { id: doc.id, ...data, content: response.data.content };
+      })
+    );
+    return { props: { blogs: blogsData } };
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    return { props: { blogs: [] } };
+  }
+}
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      const blogsSnap = await getDocs(collection(db, 'blogs'));
-      const blogsData = await Promise.all(
-        blogsSnap.docs.map(async doc => {
-          const data = doc.data();
-          const content = await fetchBlogsFromGoogleDocs(data.googleDocId);
-          return { id: doc.id, ...data, content: content.content };
-        })
-      );
-      setBlogs(blogsData);
-    };
-    fetchBlogs();
-  }, []);
-
+export default function Blogs({ blogs }) {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
