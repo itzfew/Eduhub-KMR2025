@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import CourseCard from '../components/CourseCard';
 import BlogPost from '../components/BlogPost';
 import PublicNote from '../components/PublicNote';
-import Navbar from '../components/Navbar'; // Add this import
+import Navbar from '../components/Navbar'; // Ensure this import is present
 import Footer from '../components/Footer';
 import axios from 'axios';
 
@@ -87,15 +87,4 @@ export default function Home() {
           {notes.length === 0 ? (
             <p className="text-center text-gray-600">No notes available.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {notes.map(note => (
-                <PublicNote key={note.id} note={note} />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-      <Footer />
-    </div>
-  );
-}
+            <div className="grid grid-cols-1 sm:grid-cols-
